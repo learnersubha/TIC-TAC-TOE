@@ -19,6 +19,15 @@ jobs:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
       - name: npm install
         run: sudo apt install nodejs npm -y
-      - name: Trivy file scan
-        run: trivy fs > trivy-result.txt
+   
+      - name: Trivy installation
+        run: |
+         sudo apt-get update && sudo apt-get install -y wget apt-transport-https gnupg lsb-release
+         wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo gpg --dearmor -o /usr/share/keyrings/trivy.gpg
+         echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/trivy.list
+         sudo apt-get update
+         sudo apt-get install -y trivy
+      - name: Trivy fs scan
+        run: trivy fs --format table -o fs-report.json .
+ 
   
