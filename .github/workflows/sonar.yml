@@ -1,3 +1,5 @@
+
+  
 name: Build,Analyze,scan
 on:
   push:
@@ -37,5 +39,18 @@ jobs:
           docker push learnersubha/game:latest
         env:
           DOCKER_CLI_ACI: 1
- 
-  
+      - name: image scan
+        run: trivy image learnersubha/game:latest > scanimage.txt
+
+  deploy: 
+    needs: build-analyze-scan
+    runs-on: suvo
+    steps:
+      - name: docker image pull
+        run: docker pull learnersubha/game:latest
+
+      - name: image scan
+        run: trivy image learnersubha/game:latest > pullimage.txt
+
+      - name: deploy to container
+        run: docker run -d --name tic-tac-toe -p 3000:3000 learnersubha/game:latest
